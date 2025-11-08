@@ -8,38 +8,35 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 30 40% 96%;
-    --foreground: 0 0% 15%;
+    --background: 215 25% 15%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 15%;
+    --card: 215 20% 20%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 15%;
+    --popover: 215 20% 18%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 0 0% 15%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 30 40% 85%;
+    --primary-foreground: 215 25% 15%;
 
-    --secondary: 30 35% 92%;
-    --secondary-foreground: 0 0% 15%;
+    --secondary: 215 20% 22%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 30 30% 90%;
-    --muted-foreground: 0 0% 40%;
+    --muted: 215 15% 25%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 25 45% 88%;
-    --accent-foreground: 0 0% 15%;
+    --accent: 30 35% 75%;
+    --accent-foreground: 215 25% 15%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 30 25% 88%;
-    --input: 0 0% 95%;
-    --ring: 0 0% 15%;
+    --border: 215 15% 25%;
+    --input: 215 20% 22%;
+    --ring: 30 40% 85%;
 
-    --radius: 1rem;
-    
-    /* Custom gradient */
-    --gradient-bg: linear-gradient(180deg, hsl(30, 40%, 96%) 0%, hsl(25, 45%, 94%) 100%);
+    --radius: 0.75rem;
     
     /* Smooth transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -106,8 +103,7 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply text-foreground;
-    background: var(--gradient-bg);
+    @apply text-foreground bg-background;
     min-height: 100vh;
   }
 }

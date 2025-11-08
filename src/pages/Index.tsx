@@ -1,19 +1,17 @@
-import ChatHeader from "@/components/ChatHeader";
+import Sidebar from "@/components/Sidebar";
 import ChatMessage from "@/components/ChatMessage";
 import ChatInput from "@/components/ChatInput";
-import BottomNav from "@/components/BottomNav";
 
 const Index = () => {
   return (
     <div className="min-h-screen relative">
-      <ChatHeader />
+      <Sidebar />
       
-      <main className="pt-16">
-        <ChatMessage message="palo, c'est un plaisir de vous voir" />
+      <main className="ml-12">
+        <ChatMessage message="Bonjour. Sur quoi devrions-nous nous pencher aujourd'hui ?" />
       </main>
 
       <ChatInput />
-      <BottomNav />
     </div>
   );
 };
