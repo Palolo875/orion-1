@@ -8,7 +8,9 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
 import ThemeToggle from "./ThemeToggle";
+import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 
 interface SettingsModalProps {
   open: boolean;
@@ -16,6 +18,8 @@ interface SettingsModalProps {
 }
 
 const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
+  const { firstName, lastName, setFirstName, setLastName } = useUserPreferences();
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] backdrop-blur-2xl bg-background/80 border-border/50 shadow-2xl">
@@ -27,6 +31,38 @@ const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          {/* Profil */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-light">Profil</h3>
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <Label htmlFor="firstName" className="text-sm">
+                  Prénom
+                </Label>
+                <Input
+                  id="firstName"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Votre prénom"
+                  className="bg-background/40 backdrop-blur-md border-border/50"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName" className="text-sm">
+                  Nom
+                </Label>
+                <Input
+                  id="lastName"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Votre nom"
+                  className="bg-background/40 backdrop-blur-md border-border/50"
+                />
+              </div>
+            </div>
+          </div>
+
+          <Separator />
           {/* Apparence */}
           <div className="space-y-4">
             <h3 className="text-lg font-light">Apparence</h3>

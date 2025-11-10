@@ -1,4 +1,4 @@
-import { Plus, Mic, Paperclip, FileText, Image as ImageIcon, Send, ChevronDown } from "lucide-react";
+import { Plus, Mic, Paperclip, FileText, Image as ImageIcon, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useRef } from "react";
@@ -8,19 +8,15 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
-import VoiceRecorder from "./VoiceRecorder";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import VoiceRecorderInline from "./VoiceRecorderInline";
+import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const ChatInput = () => {
   const isMobile = useIsMobile();
   const [message, setMessage] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -65,46 +61,54 @@ const ChatInput = () => {
     "Écrivez un brouillon",
     "Concevez un logo",
     "Obtenez des conseils",
+    "Résumez un document",
+    "Trouvez des idées",
   ];
 
   return (
-    <>
-      <div
-        className={cn(
-          "fixed bottom-0 left-0 right-0 bg-transparent",
-          "px-3 sm:px-4 md:px-8 py-4 sm:py-5 md:py-6",
-          !isMobile && "md:left-16 lg:left-64"
-        )}
-      >
-        <div className="max-w-4xl mx-auto space-y-3 sm:space-y-4">
-          {/* Input field */}
-          <div className="relative">
-            <div className="bg-background/60 backdrop-blur-xl rounded-full shadow-2xl border border-border/40 overflow-hidden transition-all duration-300 hover:shadow-3xl hover:bg-background/70">
-              <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 md:px-5 py-2.5 sm:py-3 md:py-3.5">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  className="hidden"
-                  onChange={(e) => handleFileChange(e, "file")}
-                />
-                <input
-                  ref={imageInputRef}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="hidden"
-                  onChange={(e) => handleFileChange(e, "image")}
-                />
+    <div
+      className={cn(
+        "fixed bottom-0 left-0 right-0 bg-transparent",
+        "px-3 sm:px-6 md:px-8 lg:px-12 py-4 sm:py-5 md:py-6",
+        !isMobile && "md:left-16 lg:left-64"
+      )}
+    >
+      <div className={cn(
+        "mx-auto space-y-3 sm:space-y-4",
+        isMobile ? "max-w-2xl" : "max-w-3xl lg:max-w-4xl xl:max-w-5xl"
+      )}>
+        {/* Input field */}
+        <div className="relative">
+          <div className={cn(
+            "bg-background/60 backdrop-blur-xl rounded-full shadow-2xl border border-border/40 overflow-hidden transition-all duration-300 hover:shadow-3xl hover:bg-background/70",
+            isRecording && "ring-2 ring-recording-active/50"
+          )}>
+            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-5 md:px-6 py-3 sm:py-3.5 md:py-4">
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                className="hidden"
+                onChange={(e) => handleFileChange(e, "file")}
+              />
+              <input
+                ref={imageInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => handleFileChange(e, "image")}
+              />
 
+              {!isRecording && (
                 <Popover open={isMenuOpen} onOpenChange={setIsMenuOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full hover:bg-accent/50 shrink-0 transition-colors"
+                      className="h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-full hover:bg-accent/50 shrink-0 transition-colors"
                     >
-                      <Plus className="h-5 w-5 sm:h-5 sm:w-5 md:h-5.5 md:w-5.5" />
+                      <Plus className="h-5 w-5 sm:h-5.5 sm:w-5.5 md:h-6 md:w-6" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent
@@ -126,70 +130,63 @@ const ChatInput = () => {
                     </div>
                   </PopoverContent>
                 </Popover>
+              )}
 
-                <Input
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Envoyer un message..."
-                  className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm sm:text-base md:text-lg placeholder:text-muted-foreground/70 font-light"
+              {isRecording ? (
+                <VoiceRecorderInline
+                  onTranscript={(text) => {
+                    setMessage(text);
+                    setIsRecording(false);
+                  }}
+                  onStop={() => setIsRecording(false)}
                 />
+              ) : (
+                <>
+                  <Input
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Envoyer un message..."
+                    className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm sm:text-base md:text-lg placeholder:text-muted-foreground/70 font-light"
+                  />
 
-                {message ? (
-                  <Button
-                    size="icon"
-                    className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full shrink-0 bg-foreground text-background hover:bg-foreground/90 transition-all duration-200"
-                  >
-                    <Send className="h-4.5 w-4.5 sm:h-5 sm:w-5 md:h-5.5 md:w-5.5" />
-                  </Button>
-                ) : (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setShowVoiceRecorder(true)}
-                    className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full hover:bg-accent/50 shrink-0 transition-colors"
-                  >
-                    <Mic className="h-4.5 w-4.5 sm:h-5 sm:w-5 md:h-5.5 md:w-5.5" />
-                  </Button>
-                )}
-              </div>
+                  {message ? (
+                    <Button
+                      size="icon"
+                      className="h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-full shrink-0 bg-foreground text-background hover:bg-foreground/90 transition-all duration-200"
+                    >
+                      <Send className="h-5 w-5 sm:h-5.5 sm:w-5.5 md:h-6 md:w-6" />
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setIsRecording(true)}
+                      className="h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-full hover:bg-accent/50 shrink-0 transition-colors"
+                    >
+                      <Mic className="h-5 w-5 sm:h-5.5 sm:w-5.5 md:h-6 md:w-6" />
+                    </Button>
+                  )}
+                </>
+              )}
             </div>
           </div>
+        </div>
 
-          {/* Quick action buttons */}
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide justify-center flex-wrap">
-            {quickActions.map((action, index) => (
-              <Button
-                key={index}
-                variant="secondary"
-                className="rounded-full whitespace-nowrap bg-background/40 backdrop-blur-md hover:bg-background/60 border border-border/30 text-[11px] sm:text-xs md:text-sm px-3 sm:px-4 md:px-5 h-7 sm:h-8 md:h-9 font-light transition-all duration-200 shadow-sm hover:shadow-md"
-              >
-                {action}
-              </Button>
-            ))}
-          </div>
+        {/* Quick action buttons */}
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide justify-center flex-wrap">
+          {quickActions.map((action, index) => (
+            <Button
+              key={index}
+              variant="secondary"
+              className="rounded-full whitespace-nowrap bg-background/40 backdrop-blur-md hover:bg-background/60 border border-border/30 text-xs sm:text-sm px-3 sm:px-4 md:px-5 h-8 sm:h-9 font-light transition-all duration-200 shadow-sm hover:shadow-md"
+            >
+              {action}
+            </Button>
+          ))}
         </div>
       </div>
-
-      {/* Voice Recorder Modal */}
-      <Dialog open={showVoiceRecorder} onOpenChange={setShowVoiceRecorder}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Enregistrement vocal</DialogTitle>
-          </DialogHeader>
-          <VoiceRecorder
-            onTranscript={(text) => {
-              setMessage(text);
-              setShowVoiceRecorder(false);
-            }}
-          />
-        </DialogContent>
-      </Dialog>
-    </>
+    </div>
   );
 };
 
 export default ChatInput;
-
-// Import cn utility and hook
-import { cn } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/use-mobile";

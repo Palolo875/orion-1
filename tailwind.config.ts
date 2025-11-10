@@ -62,6 +62,10 @@ export default {
           foreground: "hsl(var(--user-bubble-foreground))",
         },
         thinking: "hsl(var(--thinking-text))",
+        recording: {
+          active: "hsl(var(--recording-active))",
+          wave: "hsl(var(--recording-wave))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -89,6 +93,8 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "wave-pulse": "wave-pulse 2s ease-in-out infinite",
+        "wave-ripple": "wave-ripple 1.5s ease-out infinite",
       },
     },
   },
