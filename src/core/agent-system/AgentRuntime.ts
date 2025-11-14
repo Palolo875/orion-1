@@ -1,7 +1,7 @@
 // src/core/agent-system/AgentRuntime.ts
 import { MessageBus } from '../communication/MessageBus';
 import { WorkerName, RequestHandler, KenshoMessage } from '../communication/types';
-import { WorkerRegistry } from '../guardian/WorkerRegistry'; // Importer le registre
+import { WorkerRegistry } from '../guardian/WorkerRegistry';
 
 /**
  * AgentRuntime est l'environnement d'exécution pour chaque agent.
@@ -11,25 +11,29 @@ import { WorkerRegistry } from '../guardian/WorkerRegistry'; // Importer le regi
 export class AgentRuntime {
     public readonly agentName: WorkerName;
     private readonly messageBus: MessageBus;
-    private readonly workerRegistry: WorkerRegistry; // Ajouter une instance du registre
-    private methods = new Map<string, RequestHandler>();
+    private readonly workerRegistry: WorkerRegistry;
+    private methods = new Map<string, (...args: any[]) => any>();
+    private heartbeatTimer: any;
 
     constructor(name: WorkerName) {
         this.agentName = name;
         this.messageBus = new MessageBus(name);
-        this.workerRegistry = new WorkerRegistry(name); // Initialiser le registre
+        this.workerRegistry = new WorkerRegistry(name);
 
         // Le runtime écoute les requêtes et les route vers la bonne méthode enregistrée
         this.messageBus.setRequestHandler(this.handleRequest.bind(this));
 
-        // NOUVEAU : S'abonner aux messages système pour mettre à jour le registre
+        // S'abonner aux messages système pour mettre à jour le registre
         this.messageBus.subscribeToSystemMessages(this.handleSystemMessage.bind(this));
 
         // Annoncer son existence au démarrage
         this.announceSelf();
 
-        // NOUVEAU : Enregistrer une méthode interne pour le débogage
+        // Enregistrer une méthode interne pour le débogage
         this.registerMethod('getActiveWorkers', () => this.getActiveWorkers());
+
+        // Démarrer le heartbeat pour signaler sa présence régulièrement
+        this.heartbeatTimer = setInterval(() => this.sendHeartbeat(), 2500); // Heartbeat toutes les 2.5 secondes
     }
 
     private async handleRequest(payload: { method: string, args: any[] }): Promise<any> {
@@ -41,7 +45,7 @@ export class AgentRuntime {
         throw new Error(`Method '${payload.method}' not found on agent '${this.agentName}'`);
     }
 
-    public registerMethod(name: string, handler: RequestHandler): void {
+    public registerMethod(name: string, handler: (...args: any[]) => any): void {
         if (this.methods.has(name)) {
             console.warn(`[AgentRuntime] Method '${name}' on agent '${this.agentName}' is already registered and will be overwritten.`);
         }
@@ -69,6 +73,11 @@ export class AgentRuntime {
     public dispose(): void {
         this.messageBus.dispose();
         this.workerRegistry.dispose();
+        clearInterval(this.heartbeatTimer);
+    }
+
+    private sendHeartbeat(): void {
+        this.messageBus.broadcastSystemMessage('HEARTBEAT', {});
     }
 
     // NOUVEAU : Annoncer son existence à la constellation
