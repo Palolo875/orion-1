@@ -164,4 +164,14 @@ export class MessageBus {
             traceId: `system-trace-${crypto.randomUUID()}`,
         });
     }
+
+    public send(target: WorkerName, payload: any): void {
+        this.sendMessage({
+            type: 'broadcast', // Still a broadcast, but handled by a specific target
+            sourceWorker: this.workerName,
+            targetWorker: target,
+            payload,
+            traceId: `system-trace-${crypto.randomUUID()}`,
+        });
+    }
 }
